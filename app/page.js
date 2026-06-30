@@ -49,7 +49,7 @@ export default async function Home() {
             <h2>Educational & Interactive Programs</h2>
           </div>
 
-          <div className="card-grid">
+          <div className="services-grid">
             <div className="card">
               <div className="card-img-wrapper">
                 <img 
@@ -242,6 +242,21 @@ export default async function Home() {
           padding: 0.45rem 1.25rem;
           font-size: 0.85rem;
           border-radius: var(--border-radius-sm);
+        }
+
+        /* Services Grid for exactly 2 centered items */
+        .services-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 3rem;
+          max-width: 880px;
+          margin: 0 auto;
+        }
+        @media (max-width: 768px) {
+          .services-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+          }
         }
 
         @media (max-width: 768px) {
