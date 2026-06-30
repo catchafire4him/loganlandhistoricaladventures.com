@@ -6,7 +6,7 @@ export const revalidate = 0;
 export default async function Events() {
   let list = [];
   try {
-    list = await sql`SELECT * FROM events ORDER BY date ASC, id DESC`;
+    list = await sql`SELECT * FROM events ORDER BY event_date ASC, id ASC`;
   } catch (err) {
     console.error("Error fetching events:", err);
   }

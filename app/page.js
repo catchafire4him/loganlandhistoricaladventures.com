@@ -8,7 +8,14 @@ export default async function Home() {
   // Fetch next upcoming event
   let nextEvent = null;
   try {
-    const events = await sql`SELECT * FROM events ORDER BY id DESC LIMIT 1`;
+    // 1. Fetch next upcoming event (today or future)
+    let events = await sql`SELECT * FROM events WHERE event_date >= CURRENT_DATE ORDER BY event_date ASC, id ASC LIMIT 1`;
+    
+    // 2. Fallback to the most recent event if all events are in the past
+    if (!events || events.length === 0) {
+      events = await sql`SELECT * FROM events ORDER BY event_date DESC, id DESC LIMIT 1`;
+    }
+    
     if (events && events.length > 0) {
       nextEvent = events[0];
     }

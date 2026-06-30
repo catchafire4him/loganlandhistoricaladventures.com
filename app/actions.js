@@ -181,9 +181,17 @@ export async function createEvent(formData) {
     image_url = uploadedUrl;
   }
 
+  let event_date = rawDate || null;
+  if (!event_date && date) {
+    const d = new Date(date);
+    if (!isNaN(d.getTime())) {
+      event_date = d.toISOString().split("T")[0];
+    }
+  }
+
   await sql`
-    INSERT INTO events (title, date, time, location, description, link, image_url)
-    VALUES (${title}, ${date}, ${time}, ${location}, ${description}, ${link}, ${image_url})
+    INSERT INTO events (title, date, time, location, description, link, image_url, event_date)
+    VALUES (${title}, ${date}, ${time}, ${location}, ${description}, ${link}, ${image_url}, ${event_date})
   `;
   
   revalidatePath("/events");
@@ -239,9 +247,17 @@ export async function updateEvent(id, formData) {
     image_url = uploadedUrl;
   }
 
+  let event_date = rawDate || null;
+  if (!event_date && date) {
+    const d = new Date(date);
+    if (!isNaN(d.getTime())) {
+      event_date = d.toISOString().split("T")[0];
+    }
+  }
+
   await sql`
     UPDATE events
-    SET title = ${title}, date = ${date}, time = ${time}, location = ${location}, description = ${description}, link = ${link}, image_url = ${image_url}
+    SET title = ${title}, date = ${date}, time = ${time}, location = ${location}, description = ${description}, link = ${link}, image_url = ${image_url}, event_date = ${event_date}
     WHERE id = ${id}
   `;
 
