@@ -357,7 +357,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
     <div className="section">
       <div className="container">
         {/* Dashboard Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem", borderBottom: "1px solid var(--color-border)", paddingBottom: "1.5rem" }}>
+        <div className="admin-header">
           <div>
             <h1 style={{ color: "var(--color-primary)" }}>Admin Dashboard</h1>
             <p style={{ margin: 0, fontSize: "0.95rem", color: "var(--color-text-light)" }}>Manage presentations, events, FAQs, videos, and blogs.</p>
@@ -415,7 +415,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
 
         {/* EVENTS TAB CONTENT */}
         {activeTab === "events" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "3rem" }}>
+          <div className="admin-grid">
             {/* List */}
             <div>
               <h3>Scheduled Events</h3>
@@ -539,7 +539,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
 
         {/* PRESENTATIONS TAB CONTENT */}
         {activeTab === "presentations" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "3rem" }}>
+          <div className="admin-grid">
             {/* List */}
             <div>
               <h3>Portrayed Characters</h3>
@@ -634,7 +634,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
 
         {/* FAQS TAB CONTENT */}
         {activeTab === "faqs" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "3rem" }}>
+          <div className="admin-grid">
             {/* List */}
             <div>
               <h3>Frequently Asked Questions</h3>
@@ -707,7 +707,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
 
         {/* VIDEOS TAB CONTENT */}
         {activeTab === "videos" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "3rem" }}>
+          <div className="admin-grid">
             {/* List */}
             <div>
               <h3>Folk Dancing Demonstration Videos</h3>
@@ -783,7 +783,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
 
         {/* BLOG TAB CONTENT */}
         {activeTab === "blog" && (
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "3rem" }}>
+          <div className="admin-grid">
             {/* List */}
             <div>
               <h3>Blog Articles</h3>

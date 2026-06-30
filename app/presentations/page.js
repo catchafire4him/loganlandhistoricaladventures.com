@@ -120,9 +120,9 @@ export default async function Presentations() {
         
         /* Change button look when details is open */
         .presentation-details[open] summary {
-          background-color: var(--color-primary-light);
-          color: var(--color-primary);
-          border-color: var(--color-primary);
+          background-color: var(--color-primary-light) !important;
+          color: var(--color-primary) !important;
+          border-color: var(--color-primary) !important;
         }
         .presentation-details[open] summary::after {
           content: ' (Close)';
