@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { sql } from "../lib/db";
 
-export const revalidate = 0;
+export const revalidate = 3600;
+
+export const metadata = {
+  title: "Logan Land Historical Adventures | Living History & Family Folk Dancing",
+  description: "Experience educational living history portrayals (George Washington, Alvin York) and multi-generational family folk dancing led by Logan. Serving the Pacific Northwest.",
+};
 
 export default async function Home() {
   // Fetch next 3 upcoming events
@@ -103,10 +108,16 @@ export default async function Home() {
             <div className="upcoming-events-grid">
               {upcomingEvents.map((ev) => (
                 <div key={ev.id} className="glass-panel upcoming-event-card">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", width: "100%" }}>
-                    <span className="upcoming-event-tag">Next Event</span>
-                    <span className="upcoming-event-date-badge">{ev.date.split(",")[0]}</span>
-                  </div>
+                  {(() => {
+                    const eventDateObj = ev.event_date ? new Date(ev.event_date) : new Date(ev.date);
+                    const formattedDate = !isNaN(eventDateObj.getTime()) ? eventDateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) : ev.date;
+                    return (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", width: "100%" }}>
+                        <span className="upcoming-event-tag">Next Event</span>
+                        <span className="upcoming-event-date-badge">{formattedDate}</span>
+                      </div>
+                    );
+                  })()}
                   <h3 className="upcoming-event-title">{ev.title}</h3>
                   <div className="upcoming-event-meta">
                     <div><strong>Time:</strong> {ev.time}</div>

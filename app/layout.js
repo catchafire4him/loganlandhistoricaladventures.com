@@ -51,7 +51,6 @@ export default function RootLayout({ children }) {
               <ul>
                 <li><Link href="/events">Upcoming Events</Link></li>
                 <li><Link href="/contact">Contact Us</Link></li>
-                <li><Link href="/admin">Admin Login</Link></li>
               </ul>
             </div>
           </div>

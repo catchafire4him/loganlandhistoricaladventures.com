@@ -5,14 +5,27 @@ import { revalidatePath } from "next/cache";
 import { sql } from "../lib/db";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
+import crypto from "crypto";
 import fs from "fs";
 import path from "path";
+
+// Helper to generate the cryptographically signed cookie value
+function getSignedSessionValue() {
+  const secret = process.env.ADMIN_PASSWORD || "fallback-secret-hash-salt-2026";
+  const hmac = crypto.createHmac("sha256", secret);
+  hmac.update("authenticated-admin-session-signature");
+  return hmac.digest("hex");
+}
 
 // Helper to check if admin is authenticated
 export async function isAdminAuthenticated() {
   const cookieStore = await cookies();
   const session = cookieStore.get("admin_session");
-  return session && session.value === "authenticated";
+  if (!session) return false;
+  
+  // Verify cookie signature matches the HMAC hash
+  const expectedValue = getSignedSessionValue();
+  return session.value === expectedValue;
 }
 
 // Helper to slugify titles
@@ -95,7 +108,8 @@ async function uploadFileHelper(file) {
 export async function adminLogin(password) {
   if (password === process.env.ADMIN_PASSWORD) {
     const cookieStore = await cookies();
-    cookieStore.set("admin_session", "authenticated", {
+    const sessionVal = getSignedSessionValue();
+    cookieStore.set("admin_session", sessionVal, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 2, // 2 hours session
@@ -113,11 +127,11 @@ export async function adminLogout() {
   return { success: true };
 }
 
-// 3. Contact Form Submission Action
+// 3. Contact Form Submission Action (Option 1: Saves to Neon Database)
 export async function submitContactForm(formData) {
   const name = formData.get("name");
   const email = formData.get("email");
-  const subject = formData.get("subject");
+  const subject = formData.get("subject") || "";
   const message = formData.get("message");
 
   if (!name || !email || !message) {
@@ -125,12 +139,44 @@ export async function submitContactForm(formData) {
   }
 
   try {
-    console.log(`NEW CONTACT FORM SUBMISSION:\nFrom: ${name} (${email})\nSubject: ${subject}\nMessage: ${message}`);
+    await sql`
+      INSERT INTO contact_submissions (name, email, subject, message)
+      VALUES (${name}, ${email}, ${subject}, ${message})
+    `;
+    
+    revalidatePath("/admin");
     return { success: true, message: "Thank you! Your message has been sent successfully. We will get back to you soon." };
   } catch (err) {
     console.error("Error submitting contact form:", err);
     return { success: false, error: "An error occurred while sending your message. Please try again." };
   }
+}
+
+// 3b. Admin Contact Message Management Actions
+export async function markMessageRead(id, read) {
+  if (!(await isAdminAuthenticated())) {
+    throw new Error("Unauthorized");
+  }
+
+  await sql`
+    UPDATE contact_submissions
+    SET read = ${read}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function deleteMessage(id) {
+  if (!(await isAdminAuthenticated())) {
+    throw new Error("Unauthorized");
+  }
+
+  await sql`DELETE FROM contact_submissions WHERE id = ${id}`;
+
+  revalidatePath("/admin");
+  return { success: true };
 }
 
 // 4. Events CRUD Operations

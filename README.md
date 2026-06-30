@@ -1,34 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Logan Land Historical Adventures
 
-## Getting Started
+A premium, highly interactive living history and family folk dancing web application built with **Next.js (App Router)**, **Neon Serverless PostgreSQL**, and **Vercel Blob Storage**.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Features
+
+* **Living History Portrayals:** Interactive details page showcasing character histories (George Washington, Alvin York, John Newton, etc.).
+* **Family Folk Dancing Hub:** Videos, galleries, and information on multi-generational community dancing.
+* **Dynamic Calendar & Schedule:** Chronological timeline showing public presentation listings, featuring custom "Add to Calendar" (Google, Apple iCal, Outlook) and social share features.
+* **Blog System:** Managed blog with slug generation, excerpts, and rich paragraph layouts.
+* **Contact Booking Forms:** Stores all customer inquiries directly in the PostgreSQL database.
+* **CMS Admin Dashboard (`/admin`):** Password-protected administrative dashboard allowing secure CRUD management of all presentations, events, FAQs, videos, blogs, and contact messages.
+* **Asset Optimization:** Auto-compresses uploaded images to `.webp` format and resizes them using `sharp` to minimize page loading times.
+* **Fully Responsive:** Custom mobile navigation overlay drawer, mobile-first font scaling, and responsive grids.
+
+---
+
+## 🛠️ Tech Stack
+
+* **Frontend:** Next.js (Turbopack, App Router)
+* **Database:** PostgreSQL (hosted on Neon)
+* **Storage:** Vercel Blob (for administrative uploads) & Local public folder fallback
+* **Styling:** Vanilla CSS (highly customizable layout)
+* **Image Processing:** Sharp (native image resizing/compression)
+
+---
+
+## ⚙️ Environment Configuration
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# Neon PostgreSQL Connection URL
+DATABASE_URL=postgresql://user:password@hostname/dbname?sslmode=require
+
+# Administrative Dashboard Password
+ADMIN_PASSWORD=your_secure_admin_password
+
+# Vercel Blob Storage Token (Optional - falls back to local public folder if omitted)
+BLOB_READ_WRITE_TOKEN=vercel_blob_rw_token_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 📋 Database Initialization & Seeding
 
-## Learn More
+### 1. Create Schema
+Run the SQL queries inside [`lib/schema.sql`](lib/schema.sql) in your database query editor (or Neon SQL console) to set up all required tables.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Seed Initial Content
+Run the following command to seed initial presentations, FAQs, and calendar events:
+```bash
+npm run seed
+```
+*(Make sure to add `"seed": "node lib/seed.js"` to `package.json` scripts if not already present).*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 💻 Development Workflow
 
-## Deploy on Vercel
+First, install dependencies:
+```bash
+npm install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Run the local development server:
+```bash
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Build the production bundle:
+```bash
+npm run build
+```

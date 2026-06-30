@@ -1,6 +1,11 @@
 import { sql } from "../../lib/db";
 
-export const revalidate = 0;
+export const revalidate = 3600;
+
+export const metadata = {
+  title: "Frequently Asked Questions | Logan Land",
+  description: "Find answers to questions about booking Logan for historical presentations, family folk dancing events, travel, and custom history topics.",
+};
 
 export default async function FAQ() {
   let list = [];

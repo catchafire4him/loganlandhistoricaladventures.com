@@ -2,7 +2,25 @@ import { sql } from "../../../lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 
-export const revalidate = 0;
+export const revalidate = 3600;
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  try {
+    const results = await sql`SELECT title, excerpt FROM posts WHERE slug = ${slug} AND status = 'published'`;
+    if (results.length > 0) {
+      return {
+        title: `${results[0].title} | Logan Land Blog`,
+        description: results[0].excerpt || `Read the latest article: ${results[0].title} by Logan.`,
+      };
+    }
+  } catch (err) {
+    console.error("Error generating blog metadata:", err);
+  }
+  return {
+    title: "Blog Article | Logan Land",
+  };
+}
 
 export default async function BlogPostPage({ params }) {
   // Await params since it's a dynamic route

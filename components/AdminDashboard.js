@@ -8,10 +8,11 @@ import {
   createPresentation, updatePresentation, deletePresentation,
   createFaq, updateFaq, deleteFaq,
   createVideo, updateVideo, deleteVideo,
-  createPost, updatePost, deletePost
+  createPost, updatePost, deletePost,
+  markMessageRead, deleteMessage
 } from "../app/actions";
 
-export default function AdminDashboard({ events, presentations, faqs, videos = [], posts = [] }) {
+export default function AdminDashboard({ events, presentations, faqs, videos = [], posts = [], messages = [] }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -410,6 +411,13 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
             onClick={() => changeTab("blog")}
           >
             Blog Posts ({posts.length})
+          </button>
+          <button 
+            className={`btn ${activeTab === "messages" ? "btn-primary" : "btn-secondary"}`}
+            style={{ borderRadius: "8px 8px 0 0", padding: "0.75rem 1.5rem", borderBottom: "none" }}
+            onClick={() => changeTab("messages")}
+          >
+            Messages ({messages.filter(m => !m.read).length})
           </button>
         </div>
 
@@ -873,6 +881,125 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
                   )}
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* MESSAGES TAB CONTENT */}
+        {activeTab === "messages" && (
+          <div className="admin-grid">
+            {/* List */}
+            <div>
+              <h3>Inquiries & Bookings</h3>
+              <p style={{ marginBottom: "2rem", color: "var(--color-text-light)" }}>Contact form messages submitted by visitors.</p>
+
+              {messages.length === 0 ? (
+                <div className="glass-panel" style={{ padding: "3rem", textAlign: "center", color: "var(--color-text-light)" }}>
+                  No messages received yet.
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                  {messages.map((m) => {
+                    const formattedDate = new Date(m.created_at).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit"
+                    });
+                    return (
+                      <div 
+                        key={m.id} 
+                        className="glass-panel" 
+                        style={{ 
+                          padding: "2rem", 
+                          borderLeft: m.read ? "1px solid var(--color-border)" : "5px solid var(--color-primary)",
+                          backgroundColor: m.read ? "#faf8f5" : "#ffffff",
+                          opacity: m.read ? 0.85 : 1
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" }}>
+                          <div>
+                            <strong style={{ fontSize: "1.1rem", color: "var(--color-primary)" }}>{m.name}</strong>
+                            <span style={{ margin: "0 0.5rem", color: "var(--color-border-hover)" }}>|</span>
+                            <a href={`mailto:${m.email}`} style={{ color: "var(--color-text-muted)", textDecoration: "underline" }}>{m.email}</a>
+                          </div>
+                          <span style={{ fontSize: "0.85rem", color: "var(--color-text-light)" }}>{formattedDate}</span>
+                        </div>
+
+                        {m.subject && (
+                          <div style={{ marginBottom: "0.75rem" }}>
+                            <strong>Subject:</strong> {m.subject}
+                          </div>
+                        )}
+
+                        <p style={{ whiteSpace: "pre-wrap", color: "var(--color-text-dark)", margin: "0 0 1.25rem 0", padding: "1rem", backgroundColor: "#fcfbfa", borderRadius: "8px", border: "1px solid var(--color-border)", fontSize: "0.98rem" }}>
+                          {m.message}
+                        </p>
+
+                        <div style={{ display: "flex", gap: "1rem", marginTop: "1.25rem" }}>
+                          <button 
+                            className="btn btn-secondary" 
+                            style={{ padding: "0.4rem 1rem", fontSize: "0.85rem" }}
+                            onClick={async () => {
+                              setLoading(true);
+                              try {
+                                await markMessageRead(m.id, !m.read);
+                                showMsg("success", `Marked message as ${!m.read ? "read" : "unread"}!`);
+                                setTimeout(() => window.location.reload(), 1000);
+                              } catch (err) {
+                                showMsg("error", "Error updating message: " + err.message);
+                              } finally {
+                                setLoading(false);
+                              }
+                            }}
+                          >
+                            {m.read ? "Mark Unread" : "Mark Read"}
+                          </button>
+                          <button 
+                            className="btn btn-secondary" 
+                            style={{ padding: "0.4rem 1rem", fontSize: "0.85rem", color: "#a82e2e", borderColor: "#f9d0cb" }}
+                            onClick={async () => {
+                              if (!confirm("Are you sure you want to delete this message?")) return;
+                              setLoading(true);
+                              try {
+                                await deleteMessage(m.id);
+                                showMsg("success", "Deleted message!");
+                                setTimeout(() => window.location.reload(), 1000);
+                              } catch (err) {
+                                showMsg("error", "Error deleting message: " + err.message);
+                              } finally {
+                                setLoading(false);
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar Summary */}
+            <div className="glass-panel" style={{ padding: "2.5rem", alignSelf: "start" }}>
+              <h3 style={{ color: "var(--color-primary)", marginBottom: "1.5rem" }}>Inquiry Statistics</h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--color-border)", paddingBottom: "0.5rem" }}>
+                  <span>Total Messages:</span>
+                  <strong>{messages.length}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--color-border)", paddingBottom: "0.5rem" }}>
+                  <span>Unread:</span>
+                  <strong style={{ color: "var(--color-primary)" }}>{messages.filter(m => !m.read).length}</strong>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: "0.5rem" }}>
+                  <span>Read:</span>
+                  <strong>{messages.filter(m => m.read).length}</strong>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -1,7 +1,12 @@
 import { sql } from "../../lib/db";
 import EventActionButtons from "../../components/EventActionButtons";
 
-export const revalidate = 0;
+export const revalidate = 3600;
+
+export const metadata = {
+  title: "Upcoming History Presentations & Dancing Events | Logan Land",
+  description: "Check the upcoming calendar schedule for Logan's live public presentations and community folk dancing events in Idaho and the Pacific Northwest.",
+};
 
 export default async function Events() {
   let list = [];
@@ -41,11 +46,19 @@ export default async function Events() {
               const imgSrc = getImageSrc(e.image_url);
               return (
                 <div key={e.id} id={`event-${e.id}`} className="event-card glass-panel" style={{ scrollMarginTop: "120px" }}>
-                  <div className="event-date-badge">
-                    <span className="event-date-month">{e.date.split(" ")[0]}</span>
-                    <span className="event-date-day">{e.date.split(" ")[1]?.replace(",", "") || ""}</span>
-                    <span className="event-date-year">{e.date.split(" ")[2] || ""}</span>
-                  </div>
+                  {(() => {
+                    const eventDateObj = e.event_date ? new Date(e.event_date) : new Date(e.date);
+                    const month = !isNaN(eventDateObj.getTime()) ? eventDateObj.toLocaleDateString("en-US", { month: "short", timeZone: "UTC" }) : "";
+                    const day = !isNaN(eventDateObj.getTime()) ? eventDateObj.toLocaleDateString("en-US", { day: "numeric", timeZone: "UTC" }) : "";
+                    const year = !isNaN(eventDateObj.getTime()) ? eventDateObj.getFullYear() : "";
+                    return (
+                      <div className="event-date-badge">
+                        <span className="event-date-month">{month}</span>
+                        <span className="event-date-day">{day}</span>
+                        <span className="event-date-year">{year}</span>
+                      </div>
+                    );
+                  })()}
                   
                   <div className="event-details-content">
                     <h3 className="event-title">{e.title}</h3>

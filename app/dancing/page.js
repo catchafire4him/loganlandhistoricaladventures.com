@@ -1,7 +1,12 @@
 import { sql } from "../../lib/db";
 import Link from "next/link";
 
-export const revalidate = 0;
+export const revalidate = 3600;
+
+export const metadata = {
+  title: "Family Folk Dancing Circles | Logan Land",
+  description: "Dynamic traditional folk dancing for weddings, block parties, community festivals, and school events. Simple circle, line, and reel dances led by Logan.",
+};
 
 export default async function Dancing() {
   const events = [

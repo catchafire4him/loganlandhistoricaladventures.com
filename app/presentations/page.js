@@ -1,6 +1,11 @@
 import { sql } from "../../lib/db";
 
-export const revalidate = 0;
+export const revalidate = 3600;
+
+export const metadata = {
+  title: "Historical Presentations & Character Portrayals | Logan Land",
+  description: "Explore Logan's dynamic living history characters, featuring George Washington, Sgt. Alvin York, and other historical figures with authentic costumes and relics.",
+};
 
 export default async function Presentations() {
   let list = [];

@@ -1,7 +1,12 @@
 import { sql } from "../../lib/db";
 import Link from "next/link";
 
-export const revalidate = 0;
+export const revalidate = 3600;
+
+export const metadata = {
+  title: "Living History & Folk Dancing Blog | Logan Land",
+  description: "Read stories, historical insights, and folk dancing updates from Logan. Learn about George Washington's rules, Alvin York's courage, and more.",
+};
 
 export default async function Blog() {
   let postsList = [];
