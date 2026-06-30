@@ -1,4 +1,5 @@
 import { sql } from "../../lib/db";
+import EventActionButtons from "../../components/EventActionButtons";
 
 export const revalidate = 0;
 
@@ -39,7 +40,7 @@ export default async function Events() {
             {list.map((e) => {
               const imgSrc = getImageSrc(e.image_url);
               return (
-                <div key={e.id} className="event-card glass-panel">
+                <div key={e.id} id={`event-${e.id}`} className="event-card glass-panel" style={{ scrollMarginTop: "120px" }}>
                   <div className="event-date-badge">
                     <span className="event-date-month">{e.date.split(" ")[0]}</span>
                     <span className="event-date-day">{e.date.split(" ")[1]?.replace(",", "") || ""}</span>
@@ -70,6 +71,9 @@ export default async function Events() {
                         </a>
                       </div>
                     )}
+
+                    {/* Interactive Save and Share Bar */}
+                    <EventActionButtons event={e} />
                   </div>
 
                   {imgSrc && (
