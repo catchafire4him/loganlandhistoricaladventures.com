@@ -62,7 +62,7 @@ export default async function Dancing() {
           <div className="dancing-text">
             <h2>Bringing People Together in a Circle</h2>
             <p>
-              Traditional folk dancing is about one thing: **connection**. Logan's family folk dances are designed to be completely inclusive. There are no complicated steps to memorize, and no partner is required to start. 
+              Traditional folk dancing is about one thing: <strong>connection</strong>. Logan's family folk dances are designed to be completely inclusive. There are no complicated steps to memorize, and no partner is required to start. 
             </p>
             <p>
               Within minutes of starting, your group will be laughing, moving in unison, and sharing a collective experience of joy. Logan uses a wide range of acoustic traditional tunes, including Irish jigs, American reels, and international circle dances.
