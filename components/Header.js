@@ -12,6 +12,7 @@ export default function Header() {
     { name: "Home", path: "/" },
     { name: "History Presentations", path: "/presentations" },
     { name: "Family Folk Dancing", path: "/dancing" },
+    { name: "Blog", path: "/blog" },
     { name: "FAQ", path: "/faq" },
     { name: "Upcoming Events", path: "/events" },
     { name: "Contact Us", path: "/contact" },

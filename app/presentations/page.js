@@ -5,7 +5,7 @@ export const revalidate = 0;
 export default async function Presentations() {
   let list = [];
   try {
-    list = await sql`SELECT * FROM presentations ORDER BY id ASC`;
+    list = await sql`SELECT * FROM presentations WHERE visible = TRUE ORDER BY id ASC`;
   } catch (err) {
     console.error("Error fetching presentations:", err);
   }

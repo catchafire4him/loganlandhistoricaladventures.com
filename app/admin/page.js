@@ -17,12 +17,14 @@ export default async function AdminPage() {
   let presentationsList = [];
   let faqsList = [];
   let videosList = [];
+  let postsList = [];
 
   try {
     eventsList = await sql`SELECT * FROM events ORDER BY date ASC, id DESC`;
     presentationsList = await sql`SELECT * FROM presentations ORDER BY id ASC`;
     faqsList = await sql`SELECT * FROM faqs ORDER BY category, display_order ASC, id ASC`;
     videosList = await sql`SELECT * FROM videos ORDER BY display_order ASC, id ASC`;
+    postsList = await sql`SELECT * FROM posts ORDER BY created_at DESC, id DESC`;
   } catch (err) {
     console.error("Database query error in admin page:", err);
   }
@@ -33,6 +35,7 @@ export default async function AdminPage() {
       presentations={presentationsList} 
       faqs={faqsList} 
       videos={videosList}
+      posts={postsList}
     />
   );
 }
