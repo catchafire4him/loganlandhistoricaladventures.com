@@ -20,7 +20,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
   const [editFaqId, setEditFaqId] = useState(null);
   const [editVideoId, setEditVideoId] = useState(null);
 
-  // Form input states
+  // Form input states (for binding values during edit mode)
   const [eventForm, setEventForm] = useState({
     title: "", date: "", time: "", location: "", description: "", link: "", image_url: ""
   });
@@ -49,15 +49,18 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
     e.preventDefault();
     setLoading(true);
     try {
+      const formData = new FormData(e.target);
       if (editEventId) {
-        await updateEvent(editEventId, eventForm);
+        await updateEvent(editEventId, formData);
         showMsg("success", "Event updated successfully!");
       } else {
-        await createEvent(eventForm);
+        await createEvent(formData);
         showMsg("success", "Event created successfully!");
       }
+      // Reset form and reload
       setEventForm({ title: "", date: "", time: "", location: "", description: "", link: "", image_url: "" });
       setEditEventId(null);
+      e.target.reset(); // clear file input
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       showMsg("error", "Error saving event: " + err.message);
@@ -99,15 +102,17 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
     e.preventDefault();
     setLoading(true);
     try {
+      const formData = new FormData(e.target);
       if (editPresId) {
-        await updatePresentation(editPresId, presForm);
+        await updatePresentation(editPresId, formData);
         showMsg("success", "Presentation updated successfully!");
       } else {
-        await createPresentation(presForm);
+        await createPresentation(formData);
         showMsg("success", "Presentation created successfully!");
       }
       setPresForm({ title: "", image_url: "", description: "", excerpt: "" });
       setEditPresId(null);
+      e.target.reset();
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       showMsg("error", "Error saving presentation: " + err.message);
@@ -193,15 +198,17 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
     e.preventDefault();
     setLoading(true);
     try {
+      const formData = new FormData(e.target);
       if (editVideoId) {
-        await updateVideo(editVideoId, videoForm);
+        await updateVideo(editVideoId, formData);
         showMsg("success", "Video updated successfully!");
       } else {
-        await createVideo(videoForm);
+        await createVideo(formData);
         showMsg("success", "Video created successfully!");
       }
       setVideoForm({ title: "", video_url: "", display_order: 0 });
       setEditVideoId(null);
+      e.target.reset();
       setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       showMsg("error", "Error saving video: " + err.message);
@@ -241,7 +248,7 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "3rem", borderBottom: "1px solid var(--color-border)", paddingBottom: "1.5rem" }}>
           <div>
             <h1 style={{ color: "var(--color-primary)" }}>Admin Dashboard</h1>
-            <p style={{ margin: 0, fontSize: "0.95rem", color: "var(--color-text-light)" }}>Manage presentations, events, FAQs, and videos.</p>
+            <p style={{ margin: 0, fontSize: "0.95rem", color: "var(--color-text-light)" }}>Manage presentations, events, FAQs, and media files.</p>
           </div>
           <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: "0.5rem 1.5rem", fontSize: "0.9rem" }}>
             Logout
@@ -318,38 +325,43 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
             {/* Form */}
             <div className="glass-panel">
               <h3>{editEventId ? "Edit Event" : "Create New Event"}</h3>
-              <form onSubmit={handleEventSubmit} style={{ marginTop: "1.5rem" }}>
+              <form onSubmit={handleEventSubmit} style={{ marginTop: "1.5rem" }} encType="multipart/form-data">
                 <div className="form-group">
                   <label className="form-label">Event Title *</label>
-                  <input type="text" required value={eventForm.title} onChange={(e) => setEventForm({...eventForm, title: e.target.value})} className="form-input" />
+                  <input type="text" name="title" required value={eventForm.title} onChange={(e) => setEventForm({...eventForm, title: e.target.value})} className="form-input" />
                 </div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                   <div className="form-group">
                     <label className="form-label">Date (e.g. July 11, 2026) *</label>
-                    <input type="text" required value={eventForm.date} onChange={(e) => setEventForm({...eventForm, date: e.target.value})} className="form-input" />
+                    <input type="text" name="date" required value={eventForm.date} onChange={(e) => setEventForm({...eventForm, date: e.target.value})} className="form-input" />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Time (e.g. 9:00 AM - 5:00 PM) *</label>
-                    <input type="text" required value={eventForm.time} onChange={(e) => setEventForm({...eventForm, time: e.target.value})} className="form-input" />
+                    <input type="text" name="time" required value={eventForm.time} onChange={(e) => setEventForm({...eventForm, time: e.target.value})} className="form-input" />
                   </div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Location *</label>
-                  <input type="text" required value={eventForm.location} onChange={(e) => setEventForm({...eventForm, location: e.target.value})} className="form-input" />
+                  <input type="text" name="location" required value={eventForm.location} onChange={(e) => setEventForm({...eventForm, location: e.target.value})} className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Description *</label>
-                  <textarea required value={eventForm.description} onChange={(e) => setEventForm({...eventForm, description: e.target.value})} className="form-input" style={{ minHeight: "80px" }}></textarea>
+                  <textarea name="description" required value={eventForm.description} onChange={(e) => setEventForm({...eventForm, description: e.target.value})} className="form-input" style={{ minHeight: "80px" }}></textarea>
                 </div>
                 <div className="form-group">
                   <label className="form-label">External Event Link (optional)</label>
-                  <input type="url" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} className="form-input" />
+                  <input type="url" name="link" value={eventForm.link} onChange={(e) => setEventForm({...eventForm, link: e.target.value})} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Image Filename (optional, e.g. event-poster.jpg)</label>
-                  <input type="text" value={eventForm.image_url} onChange={(e) => setEventForm({...eventForm, image_url: e.target.value})} className="form-input" />
+                  <label className="form-label">Existing Image URL/Filename (optional)</label>
+                  <input type="text" name="image_url" value={eventForm.image_url} onChange={(e) => setEventForm({...eventForm, image_url: e.target.value})} className="form-input" />
                 </div>
-                <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <div className="form-group" style={{ border: "1px dashed var(--color-border)", padding: "1rem", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.4)" }}>
+                  <label className="form-label" style={{ fontWeight: "600" }}>Upload New Poster Image (Vercel Blob / Local)</label>
+                  <input type="file" name="imageFile" accept="image/*" className="form-input" style={{ border: "none", padding: "0.25rem 0", background: "transparent" }} />
+                  <span style={{ fontSize: "0.75rem", color: "var(--color-text-light)" }}>Selecting a file will overwrite the existing image value above.</span>
+                </div>
+                <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                   <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
                     {editEventId ? "Update Event" : "Save Event"}
                   </button>
@@ -395,24 +407,29 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
             {/* Form */}
             <div className="glass-panel">
               <h3>{editPresId ? "Edit Character" : "Create New Character"}</h3>
-              <form onSubmit={handlePresSubmit} style={{ marginTop: "1.5rem" }}>
+              <form onSubmit={handlePresSubmit} style={{ marginTop: "1.5rem" }} encType="multipart/form-data">
                 <div className="form-group">
                   <label className="form-label">Character Name *</label>
-                  <input type="text" required value={presForm.title} onChange={(e) => setPresForm({...presForm, title: e.target.value})} className="form-input" />
+                  <input type="text" name="title" required value={presForm.title} onChange={(e) => setPresForm({...presForm, title: e.target.value})} className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Short Excerpt *</label>
-                  <input type="text" required value={presForm.excerpt} onChange={(e) => setPresForm({...presForm, excerpt: e.target.value})} className="form-input" />
+                  <input type="text" name="excerpt" required value={presForm.excerpt} onChange={(e) => setPresForm({...presForm, excerpt: e.target.value})} className="form-input" />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Full Description *</label>
-                  <textarea required value={presForm.description} onChange={(e) => setPresForm({...presForm, description: e.target.value})} className="form-input" style={{ minHeight: "120px" }}></textarea>
+                  <textarea name="description" required value={presForm.description} onChange={(e) => setPresForm({...presForm, description: e.target.value})} className="form-input" style={{ minHeight: "120px" }}></textarea>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Image Filename (optional, e.g. 20240808_155201-768x1024.webp)</label>
-                  <input type="text" value={presForm.image_url} onChange={(e) => setPresForm({...presForm, image_url: e.target.value})} className="form-input" />
+                  <label className="form-label">Existing Image URL/Filename (optional)</label>
+                  <input type="text" name="image_url" value={presForm.image_url} onChange={(e) => setPresForm({...presForm, image_url: e.target.value})} className="form-input" />
                 </div>
-                <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+                <div className="form-group" style={{ border: "1px dashed var(--color-border)", padding: "1rem", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.4)" }}>
+                  <label className="form-label" style={{ fontWeight: "600" }}>Upload Character Photo (Vercel Blob / Local)</label>
+                  <input type="file" name="imageFile" accept="image/*" className="form-input" style={{ border: "none", padding: "0.25rem 0", background: "transparent" }} />
+                  <span style={{ fontSize: "0.75rem", color: "var(--color-text-light)" }}>Selecting a file will overwrite the existing image value above.</span>
+                </div>
+                <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                   <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>
                     {editPresId ? "Update Character" : "Save Character"}
                   </button>
@@ -534,21 +551,23 @@ export default function AdminDashboard({ events, presentations, faqs, videos = [
             {/* Form */}
             <div className="glass-panel">
               <h3>{editVideoId ? "Edit Video" : "Add Demonstration Video"}</h3>
-              <form onSubmit={handleVideoSubmit} style={{ marginTop: "1.5rem" }}>
+              <form onSubmit={handleVideoSubmit} style={{ marginTop: "1.5rem" }} encType="multipart/form-data">
                 <div className="form-group">
                   <label className="form-label">Video Title *</label>
-                  <input type="text" required placeholder="e.g. Virginia Reel Dance at Wedding" value={videoForm.title} onChange={(e) => setVideoForm({...videoForm, title: e.target.value})} className="form-input" />
+                  <input type="text" name="title" required placeholder="e.g. Virginia Reel Dance at Wedding" value={videoForm.title} onChange={(e) => setVideoForm({...videoForm, title: e.target.value})} className="form-input" />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Video URL (YouTube or Direct Video File URL) *</label>
-                  <input type="text" required placeholder="https://www.youtube.com/watch?v=... or https://yourdomain.com/video.mp4" value={videoForm.video_url} onChange={(e) => setVideoForm({...videoForm, video_url: e.target.value})} className="form-input" />
-                  <span style={{ fontSize: "0.75rem", color: "var(--color-text-light)" }}>
-                    Supports full YouTube watch URLs, short `youtu.be` links, and direct video file uploads.
-                  </span>
+                  <label className="form-label">Existing Video Link / YouTube URL</label>
+                  <input type="text" name="video_url" placeholder="https://www.youtube.com/watch?v=..." value={videoForm.video_url} onChange={(e) => setVideoForm({...videoForm, video_url: e.target.value})} className="form-input" />
+                </div>
+                <div className="form-group" style={{ border: "1px dashed var(--color-border)", padding: "1rem", borderRadius: "8px", backgroundColor: "rgba(255,255,255,0.4)" }}>
+                  <label className="form-label" style={{ fontWeight: "600" }}>Upload Video File (Vercel Blob / Local)</label>
+                  <input type="file" name="videoFile" accept="video/*" className="form-input" style={{ border: "none", padding: "0.25rem 0", background: "transparent" }} />
+                  <span style={{ fontSize: "0.75rem", color: "var(--color-text-light)" }}>Uploading a video file directly will overwrite the URL field above.</span>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Display Order</label>
-                  <input type="number" value={videoForm.display_order} onChange={(e) => setVideoForm({...videoForm, display_order: parseInt(e.target.value) || 0})} className="form-input" />
+                  <input type="number" name="display_order" value={videoForm.display_order} onChange={(e) => setVideoForm({...videoForm, display_order: parseInt(e.target.value) || 0})} className="form-input" />
                 </div>
                 <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
                   <button type="submit" disabled={loading} className="btn btn-primary" style={{ flex: 1 }}>

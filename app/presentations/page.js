@@ -23,9 +23,14 @@ export default async function Presentations() {
 
         <div className="card-grid">
           {list.map((p) => {
-            const imgSrc = p.image_url 
-              ? `/wp-content/uploads/2026/06/${p.image_url}` 
-              : "/wp-content/uploads/2026/06/presentation-scaled.jpg";
+            const getImgSrc = (url) => {
+              if (!url) return "/wp-content/uploads/2026/06/presentation-scaled.jpg";
+              if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")) {
+                return url;
+              }
+              return `/wp-content/uploads/2026/06/${url}`;
+            };
+            const imgSrc = getImgSrc(p.image_url);
 
             return (
               <div key={p.id} className="card presentation-card">
