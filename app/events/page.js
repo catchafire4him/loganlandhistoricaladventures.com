@@ -191,12 +191,15 @@ export default async function Events() {
           flex-shrink: 0;
           box-shadow: var(--shadow-sm);
           border: 1px solid var(--color-border);
-          background-color: var(--color-primary-light);
+          background-color: rgba(7, 53, 30, 0.05);
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .event-poster-img {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          object-fit: contain;
           transition: transform 0.3s ease;
         }
         .event-card:hover .event-poster-img {
