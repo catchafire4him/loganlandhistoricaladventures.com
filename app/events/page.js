@@ -10,9 +10,18 @@ export default async function Events() {
     console.error("Error fetching events:", err);
   }
 
+  // Helper to resolve image paths (handles local files and Vercel Blob URLs)
+  function getImageSrc(url) {
+    if (!url) return null;
+    if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("/")) {
+      return url;
+    }
+    return `/wp-content/uploads/2026/06/${url}`;
+  }
+
   return (
     <div className="section">
-      <div className="container" style={{ maxWidth: "900px" }}>
+      <div className="container" style={{ maxWidth: "1000px" }}>
         <div className="section-title">
           <p>Calendar</p>
           <h2>Upcoming Events & presentations</h2>
@@ -27,41 +36,54 @@ export default async function Events() {
           </div>
         ) : (
           <div className="events-timeline">
-            {list.map((e) => (
-              <div key={e.id} className="event-card glass-panel">
-                <div className="event-date-badge">
-                  <span className="event-date-month">{e.date.split(" ")[0]}</span>
-                  <span className="event-date-day">{e.date.split(" ")[1]?.replace(",", "") || ""}</span>
-                  <span className="event-date-year">{e.date.split(" ")[2] || ""}</span>
-                </div>
-                
-                <div className="event-details-content">
-                  <h3 className="event-title">{e.title}</h3>
-                  <div className="event-details-meta">
-                    <div className="meta-item">
-                      <strong>Time:</strong> {e.time}
-                    </div>
-                    <div className="meta-item">
-                      <strong>Location:</strong> {e.location}
-                    </div>
+            {list.map((e) => {
+              const imgSrc = getImageSrc(e.image_url);
+              return (
+                <div key={e.id} className="event-card glass-panel">
+                  <div className="event-date-badge">
+                    <span className="event-date-month">{e.date.split(" ")[0]}</span>
+                    <span className="event-date-day">{e.date.split(" ")[1]?.replace(",", "") || ""}</span>
+                    <span className="event-date-year">{e.date.split(" ")[2] || ""}</span>
                   </div>
-                  <p className="event-desc">{e.description}</p>
                   
-                  {e.link && (
-                    <div className="event-link-wrapper">
-                      <a 
-                        href={e.link} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="btn btn-secondary btn-sm"
-                      >
-                        External Link & Details
-                      </a>
+                  <div className="event-details-content">
+                    <h3 className="event-title">{e.title}</h3>
+                    <div className="event-details-meta">
+                      <div className="meta-item">
+                        <strong>Time:</strong> {e.time}
+                      </div>
+                      <div className="meta-item">
+                        <strong>Location:</strong> {e.location}
+                      </div>
+                    </div>
+                    <p className="event-desc">{e.description}</p>
+                    
+                    {e.link && (
+                      <div className="event-link-wrapper">
+                        <a 
+                          href={e.link} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="btn btn-secondary btn-sm"
+                        >
+                          External Link & Details
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  {imgSrc && (
+                    <div className="event-poster-wrapper">
+                      <img 
+                        src={imgSrc} 
+                        alt={`${e.title} Poster`} 
+                        className="event-poster-img"
+                      />
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -84,12 +106,13 @@ export default async function Events() {
           padding: 2.5rem;
           border-left: 6px solid var(--color-primary);
           transition: var(--transition-smooth);
+          align-items: flex-start;
         }
         .event-card:hover {
           transform: translateX(4px);
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
           .event-card {
             flex-direction: column;
             gap: 1.5rem;
@@ -157,6 +180,33 @@ export default async function Events() {
         .btn-sm {
           padding: 0.5rem 1.5rem;
           font-size: 0.9rem;
+        }
+
+        /* Event Poster Styling */
+        .event-poster-wrapper {
+          width: 200px;
+          height: 200px;
+          border-radius: var(--border-radius-md);
+          overflow: hidden;
+          flex-shrink: 0;
+          box-shadow: var(--shadow-sm);
+          border: 1px solid var(--color-border);
+          background-color: var(--color-primary-light);
+        }
+        .event-poster-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.3s ease;
+        }
+        .event-card:hover .event-poster-img {
+          transform: scale(1.05);
+        }
+        @media (max-width: 900px) {
+          .event-poster-wrapper {
+            width: 100%;
+            height: 260px;
+          }
         }
       `}</style>
     </div>
