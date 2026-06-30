@@ -1,26 +1,21 @@
 import Link from "next/link";
 import { sql } from "../lib/db";
 
-// Force Next.js to run dynamic queries rather than caching permanently
 export const revalidate = 0;
 
 export default async function Home() {
-  // Fetch next upcoming event
-  let nextEvent = null;
+  // Fetch next 3 upcoming events
+  let upcomingEvents = [];
   try {
-    // 1. Fetch next upcoming event (today or future)
-    let events = await sql`SELECT * FROM events WHERE event_date >= CURRENT_DATE ORDER BY event_date ASC, id ASC LIMIT 1`;
+    // 1. Fetch next 3 upcoming events (today or future)
+    upcomingEvents = await sql`SELECT * FROM events WHERE event_date >= CURRENT_DATE ORDER BY event_date ASC, id ASC LIMIT 3`;
     
-    // 2. Fallback to the most recent event if all events are in the past
-    if (!events || events.length === 0) {
-      events = await sql`SELECT * FROM events ORDER BY event_date DESC, id DESC LIMIT 1`;
-    }
-    
-    if (events && events.length > 0) {
-      nextEvent = events[0];
+    // 2. Fallback to the most recent events if all events are in the past
+    if (!upcomingEvents || upcomingEvents.length === 0) {
+      upcomingEvents = await sql`SELECT * FROM events ORDER BY event_date DESC, id DESC LIMIT 3`;
     }
   } catch (err) {
-    console.error("Error fetching next event:", err);
+    console.error("Error fetching upcoming events:", err);
   }
 
   return (
@@ -51,7 +46,7 @@ export default async function Home() {
         <div className="container">
           <div className="section-title">
             <p>What We Offer</p>
-            <h2>Educational & Interactive Adventures</h2>
+            <h2>Educational & Interactive Programs</h2>
           </div>
 
           <div className="card-grid">
@@ -59,17 +54,17 @@ export default async function Home() {
               <div className="card-img-wrapper">
                 <img 
                   src="/wp-content/uploads/2026/06/presentation-scaled.jpg" 
-                  alt="Living History Presentation" 
+                  alt="George Washington Living History Presentation" 
                   className="card-img"
                 />
               </div>
               <div className="card-content">
-                <h3 className="card-title">Living History Presentations</h3>
+                <h3 className="card-title">History Presentations</h3>
                 <p className="card-text">
-                  Logan portrays historical figures—such as George Washington, Abraham Lincoln, and Alvin York—with authentic costuming, deep research, and historic artifacts. Inspiring, dramatic, and educational.
+                  Highly researched, dramatic character portrayals that transport audiences to key moments in history. Logan brings figures like George Washington and Alvin York to life with authentic attire and props.
                 </p>
                 <Link href="/presentations" className="btn btn-secondary" style={{ marginTop: "auto" }}>
-                  View Characters
+                  Explore Characters
                 </Link>
               </div>
             </div>
@@ -96,37 +91,48 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Next Upcoming Event banner */}
-      {nextEvent && (
+      {/* Upcoming Schedule Section */}
+      {upcomingEvents.length > 0 && (
         <section className="section">
           <div className="container">
-            <div className="glass-panel event-banner">
-              <div className="event-banner-content">
-                <span className="event-tag">Next Upcoming Event</span>
-                <h3>{nextEvent.title}</h3>
-                <div className="event-meta">
-                  <div className="event-meta-item">
-                    <strong>Date:</strong> {nextEvent.date}
+            <div className="section-title">
+              <p>Calendar</p>
+              <h2>Upcoming Schedule</h2>
+            </div>
+            
+            <div className="upcoming-events-grid">
+              {upcomingEvents.map((ev) => (
+                <div key={ev.id} className="glass-panel upcoming-event-card">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", width: "100%" }}>
+                    <span className="upcoming-event-tag">Next Event</span>
+                    <span className="upcoming-event-date-badge">{ev.date.split(",")[0]}</span>
                   </div>
-                  <div className="event-meta-item">
-                    <strong>Time:</strong> {nextEvent.time}
+                  <h3 className="upcoming-event-title">{ev.title}</h3>
+                  <div className="upcoming-event-meta">
+                    <div><strong>Time:</strong> {ev.time}</div>
+                    <div><strong>Location:</strong> {ev.location}</div>
                   </div>
-                  <div className="event-meta-item">
-                    <strong>Location:</strong> {nextEvent.location}
+                  <p className="upcoming-event-desc">
+                    {ev.description.length > 130 ? ev.description.slice(0, 130) + "..." : ev.description}
+                  </p>
+                  <div className="upcoming-event-actions">
+                    <Link href={`/events#event-${ev.id}`} className="btn btn-secondary btn-sm">
+                      Save & Share
+                    </Link>
+                    {ev.link && (
+                      <a href={ev.link} target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-sm">
+                        Details
+                      </a>
+                    )}
                   </div>
                 </div>
-                <p>{nextEvent.description}</p>
-                <div className="event-actions">
-                  <Link href="/events" className="btn btn-primary">
-                    View All Events
-                  </Link>
-                  {nextEvent.link && (
-                    <a href={nextEvent.link} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
-                      Event Details
-                    </a>
-                  )}
-                </div>
-              </div>
+              ))}
+            </div>
+            
+            <div style={{ textAlign: "center", marginTop: "3.5rem" }}>
+              <Link href="/events" className="btn btn-primary">
+                View Calendar Timeline
+              </Link>
             </div>
           </div>
         </section>
@@ -139,88 +145,116 @@ export default async function Home() {
           padding: 8rem 0;
           color: #fff;
           text-align: center;
-          border-bottom: 5px solid var(--color-primary);
-        }
-        .hero-container {
-          display: flex;
-          justify-content: center;
-        }
-        .hero-content {
-          max-width: 800px;
         }
         .hero-subtitle {
-          display: block;
           font-family: var(--font-sans);
-          font-size: 1.1rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.15em;
           color: var(--color-secondary);
-          margin-bottom: 1.5rem;
+          display: block;
+          margin-bottom: 1rem;
         }
-        .hero-content h1 {
+        .hero-section h1 {
           font-size: 3.5rem;
           margin-bottom: 1.5rem;
-          text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
-        .hero-content p {
-          color: #e5dfdf;
-          font-size: 1.25rem;
-          margin-bottom: 2.5rem;
-          text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        .hero-section p {
+          max-width: 800px;
+          margin: 0 auto 2.5rem auto;
+          font-size: 1.2rem;
+          color: #f0eae4;
         }
         .hero-actions {
           display: flex;
-          justify-content: center;
           gap: 1.5rem;
-          flex-wrap: wrap;
+          justify-content: center;
         }
-        .hero-actions .btn-secondary {
+        .hero-section .btn-secondary {
           color: #fff;
           border-color: #fff;
         }
-        .hero-actions .btn-secondary:hover {
+        .hero-section .btn-secondary:hover {
           background-color: rgba(255, 255, 255, 0.1);
         }
-        
-        .event-banner {
+
+        /* Upcoming Events Grid */
+        .upcoming-events-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 2rem;
+          margin-top: 1rem;
+        }
+        .upcoming-event-card {
+          padding: 2.25rem 2rem;
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
-          border-left: 6px solid var(--color-primary);
+          border-left: 5px solid var(--color-primary);
+          height: 100%;
+          background: #ffffff;
         }
-        .event-tag {
-          display: inline-block;
-          background-color: var(--color-primary);
-          color: #fff;
+        .upcoming-event-tag {
+          font-family: var(--font-sans);
+          font-weight: 600;
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          background-color: var(--color-primary-light);
+          color: var(--color-primary);
+          padding: 0.25rem 0.6rem;
+          border-radius: 4px;
+        }
+        .upcoming-event-date-badge {
           font-size: 0.85rem;
           font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          padding: 0.35rem 1rem;
-          border-radius: 50px;
-          margin-bottom: 1rem;
+          color: var(--color-secondary);
         }
-        .event-banner h3 {
-          font-size: 2.25rem;
+        .upcoming-event-title {
+          font-size: 1.35rem;
           color: var(--color-primary);
-          margin-bottom: 1rem;
+          margin-bottom: 0.75rem;
+          font-family: var(--font-serif);
+          font-weight: 700;
+          line-height: 1.3;
         }
-        .event-meta {
+        .upcoming-event-meta {
+          font-size: 0.88rem;
+          color: var(--color-text-muted);
+          margin-bottom: 1.25rem;
           display: flex;
-          gap: 2rem;
-          margin-bottom: 1.5rem;
-          flex-wrap: wrap;
-          font-size: 1.05rem;
+          flex-direction: column;
+          gap: 0.25rem;
         }
-        .event-meta-item strong {
-          color: var(--color-text-dark);
+        .upcoming-event-desc {
+          font-size: 0.95rem;
+          line-height: 1.65;
+          color: var(--color-text-muted);
+          margin-bottom: 1.75rem;
+          flex: 1;
         }
-        .event-actions {
+        .upcoming-event-actions {
           display: flex;
-          gap: 1rem;
-          margin-top: 1.5rem;
+          gap: 0.75rem;
+          margin-top: auto;
           flex-wrap: wrap;
+        }
+        .upcoming-event-actions .btn-sm {
+          padding: 0.45rem 1.25rem;
+          font-size: 0.85rem;
+          border-radius: var(--border-radius-sm);
+        }
+
+        @media (max-width: 768px) {
+          .hero-section {
+            padding: 5rem 0;
+          }
+          .hero-section h1 {
+            font-size: 2.25rem;
+          }
+          .hero-actions {
+            flex-direction: column;
+            gap: 1rem;
+          }
         }
       `}</style>
     </div>
